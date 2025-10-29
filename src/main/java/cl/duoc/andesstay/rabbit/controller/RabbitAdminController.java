@@ -15,6 +15,7 @@ import java.util.Properties;
 
 @RestController
 @RequestMapping("/api/rabbit")
+@CrossOrigin(origins = "*")
 public class RabbitAdminController {
 
     private final RabbitAdminService adminService;
