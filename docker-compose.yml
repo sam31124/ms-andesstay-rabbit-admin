@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  rabbit1:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbit1-andesstay
+    hostname: rabbit1
+    restart: unless-stopped
+    ports:
+      - "5672:5672"       # Puerto AMQP Nodo 1 (Microservicios)
+      - "15672:15672"     # Management Console Nodo 1
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=ANDESSTAY_CLUSTER_COOKIE_2025
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - rabbit1_andesstay_data:/var/lib/rabbitmq
+    networks:
+      - rabbitmq_cluster_net
+
+  rabbit2:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbit2-andesstay
+    hostname: rabbit2
+    restart: unless-stopped
+    depends_on:
+      - rabbit1
+    ports:
+      - "5673:5672"       # Puerto AMQP Nodo 2
+      - "15673:15672"     # Management Console Nodo 2
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=ANDESSTAY_CLUSTER_COOKIE_2025
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - rabbit2_andesstay_data:/var/lib/rabbitmq
+    networks:
+      - rabbitmq_cluster_net
+
+networks:
+  rabbitmq_cluster_net:
+    driver: bridge
+
+volumes:
+  rabbit1_andesstay_data:
+  rabbit2_andesstay_data:
